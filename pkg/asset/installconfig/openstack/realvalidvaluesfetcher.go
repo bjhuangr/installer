@@ -181,9 +181,9 @@ func (f realValidValuesFetcher) GetFloatingIPNames(cloud string, floatingNetwork
 		return nil, err
 	}
 
-	if len(allFloatingIPs) == 0 {
-		return nil, errors.New("there are no unassigned floating IP addresses available")
-	}
+	// if len(allFloatingIPs) == 0 {
+	// 	return nil, errors.New("there are no unassigned floating IP addresses available")
+	// }
 
 	floatingIPNames := make([]string, len(allFloatingIPs))
 	for i, floatingIP := range allFloatingIPs {
