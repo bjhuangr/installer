@@ -33,6 +33,7 @@ module "bootstrap" {
   api_int_ip              = var.openstack_api_int_ip
   node_dns_ip             = var.openstack_node_dns_ip
   external_network        = var.openstack_external_network
+  lb_floating_ip          = var.openstack_lb_floating_ip
   cluster_domain          = var.cluster_domain
   nodes_subnet_id         = module.topology.nodes_subnet_id
   private_network_id      = module.topology.private_network_id

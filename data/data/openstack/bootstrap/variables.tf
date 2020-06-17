@@ -76,3 +76,7 @@ variable "root_volume_type" {
   type = string
   description = "The type of volume for the root block device."
 }
+
+variable "lb_floating_ip" {
+  type = string
+}
