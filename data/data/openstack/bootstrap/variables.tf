@@ -45,6 +45,7 @@ variable "node_dns_ip" {
 
 variable "external_network" {
   type = string
+  default = ""
 }
 
 variable "private_network_id" {

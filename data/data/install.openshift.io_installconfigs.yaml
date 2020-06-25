@@ -1238,8 +1238,6 @@ spec:
                 required:
                 - cloud
                 - computeFlavor
-                - externalNetwork
-                - lbFloatingIP
                 - octaviaSupport
                 - region
                 - trunkSupport

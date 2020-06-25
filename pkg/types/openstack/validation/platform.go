@@ -41,7 +41,7 @@ func ValidatePlatform(p *openstack.Platform, n *types.Networking, fldPath *field
 		validNetworks, err := fetcher.GetNetworkNames(p.Cloud)
 		if err != nil {
 			allErrs = append(allErrs, field.InternalError(fldPath.Child("externalNetwork"), errors.New("could not retrieve valid networks")))
-		} else if !isValidValue(p.ExternalNetwork, validNetworks) {
+		} else if p.ExternalNetwork != "" && !isValidValue(p.ExternalNetwork, validNetworks) {
 			allErrs = append(allErrs, field.NotSupported(fldPath.Child("externalNetwork"), p.ExternalNetwork, validNetworks))
 		}
 		validFlavors, err := fetcher.GetFlavorNames(p.Cloud)

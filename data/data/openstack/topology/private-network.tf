@@ -6,6 +6,7 @@ locals {
 }
 
 data "openstack_networking_network_v2" "external_network" {
+  count      = var.external_network != "" ? 1 : 0
   name       = var.external_network
   network_id = var.external_network_id
   external   = true
@@ -132,15 +133,15 @@ resource "openstack_networking_floatingip_associate_v2" "api_fip" {
 }
 
 resource "openstack_networking_router_v2" "openshift-external-router" {
-  count               = local.create_router
+  count               = var.external_network != "" ? local.create_router : 0
   name                = "${var.cluster_id}-external-router"
   admin_state_up      = true
-  external_network_id = data.openstack_networking_network_v2.external_network.id
+  external_network_id = join("", data.openstack_networking_network_v2.external_network.*.id)
   tags                = ["openshiftClusterID=${var.cluster_id}"]
 }
 
 resource "openstack_networking_router_interface_v2" "nodes_router_interface" {
-  count     = local.create_router
-  router_id = openstack_networking_router_v2.openshift-external-router[0].id
+  count     = var.external_network != "" ? local.create_router : 0
+  router_id = join("", openstack_networking_router_v2.openshift-external-router.*.id)
   subnet_id = local.nodes_subnet_id
 }

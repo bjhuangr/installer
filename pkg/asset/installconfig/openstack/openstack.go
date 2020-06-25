@@ -12,6 +12,10 @@ import (
 	"github.com/openshift/installer/pkg/types/openstack"
 )
 
+const (
+	noExtNet = "<none>"
+)
+
 // Platform collects OpenStack-specific configuration.
 func Platform() (*openstack.Platform, error) {
 	validValuesFetcher := NewValidValuesFetcher()
@@ -48,6 +52,7 @@ func Platform() (*openstack.Platform, error) {
 	if err != nil {
 		return nil, err
 	}
+	networkNames = append(networkNames, noExtNet)
 	sort.Strings(networkNames)
 	var extNet string
 	err = survey.Ask([]*survey.Question{
@@ -56,6 +61,7 @@ func Platform() (*openstack.Platform, error) {
 				Message: "ExternalNetwork",
 				Help:    "The OpenStack external network name to be used for installation.",
 				Options: networkNames,
+				Default: noExtNet,
 			},
 			Validate: survey.ComposeValidators(survey.Required, func(ans interface{}) error {
 				value := ans.(string)
@@ -67,37 +73,41 @@ func Platform() (*openstack.Platform, error) {
 			}),
 		},
 	}, &extNet)
+	if extNet == noExtNet {
+		extNet = ""
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	floatingIPNames, err := validValuesFetcher.GetFloatingIPNames(cloud, extNet)
-	if err != nil {
-		return nil, err
-	}
-	sort.Strings(floatingIPNames)
-	var lbFloatingIP string
-	err = survey.Ask([]*survey.Question{
-		{
-			Prompt: &survey.Select{
-				Message: "APIFloatingIPAddress",
-				Help:    "The Floating IP address used for external access to the OpenShift API.",
-				Options: floatingIPNames,
+	lbFloatingIP := ""
+	if extNet != "" {
+		floatingIPNames, err := validValuesFetcher.GetFloatingIPNames(cloud, extNet)
+		if err != nil {
+			return nil, err
+		}
+		sort.Strings(floatingIPNames)
+		err = survey.Ask([]*survey.Question{
+			{
+				Prompt: &survey.Select{
+					Message: "APIFloatingIPAddress",
+					Help:    "The Floating IP address used for external access to the OpenShift API.",
+					Options: floatingIPNames,
+				},
+				Validate: survey.ComposeValidators(survey.Required, func(ans interface{}) error {
+					value := ans.(string)
+					i := sort.SearchStrings(floatingIPNames, value)
+					if i == len(floatingIPNames) || floatingIPNames[i] != value {
+						return errors.Errorf("invalid floating IP %q, should be one of %+v", value, strings.Join(floatingIPNames, ", "))
+					}
+					return nil
+				}),
 			},
-			Validate: survey.ComposeValidators(survey.Required, func(ans interface{}) error {
-				value := ans.(string)
-				i := sort.SearchStrings(floatingIPNames, value)
-				if i == len(floatingIPNames) || floatingIPNames[i] != value {
-					return errors.Errorf("invalid floating IP %q, should be one of %+v", value, strings.Join(floatingIPNames, ", "))
-				}
-				return nil
-			}),
-		},
-	}, &lbFloatingIP)
-	if err != nil {
-		return nil, err
+		}, &lbFloatingIP)
+		if err != nil {
+			return nil, err
+		}
 	}
-
 	flavorNames, err := validValuesFetcher.GetFlavorNames(cloud)
 	if err != nil {
 		return nil, err

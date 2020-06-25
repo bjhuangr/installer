@@ -69,7 +69,7 @@ func TestValidatePlatform(t *testing.T) {
 				return p
 			}(),
 			networking: validNetworking(),
-			valid:      false,
+			valid:      true,
 		},
 		{
 			name: "valid default machine pool",
