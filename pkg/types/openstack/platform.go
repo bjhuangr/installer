@@ -49,6 +49,11 @@ type Platform struct {
 	// +optional
 	APIVIP string `json:"apiVIP,omitempty"`
 
+	// DNSVIP is the static IP on the nodes subnet that the internal dns port for openshift will be assigned
+	// Default: will be set to the 6 on the first entry in the machineNetwork CIDR
+	// +optional
+	DNSVIP string `json:"dnsVIP,omitempty"`
+
 	// IngressVIP is the static IP on the nodes subnet that the apps port for openshift will be assigned
 	// Default: will be set to the 7 on the first entry in the machineNewtwork CIDR
 	// +optional
