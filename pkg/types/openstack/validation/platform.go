@@ -92,6 +92,11 @@ func ValidatePlatform(p *openstack.Platform, n *types.Networking, fldPath *field
 		allErrs = append(allErrs, field.Invalid(fldPath.Child("apiVIP"), p.APIVIP, err.Error()))
 	}
 
+	err = validateVIP(p.DNSVIP, n)
+	if err != nil {
+		allErrs = append(allErrs, field.Invalid(fldPath.Child("dnsVIP"), p.DNSVIP, err.Error()))
+	}
+
 	err = validateVIP(p.IngressVIP, n)
 	if err != nil {
 		allErrs = append(allErrs, field.Invalid(fldPath.Child("ingressVIP"), p.IngressVIP, err.Error()))
