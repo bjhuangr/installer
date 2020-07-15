@@ -69,7 +69,7 @@ resource "openstack_networking_port_v2" "masters" {
     ip_address = var.ingress_ip
   }
 
-  depends_on = [openstack_networking_port_v2.api_port, openstack_networking_port_v2.ingress_port]
+  depends_on = [openstack_networking_port_v2.api_port, openstack_networking_port_v2.dns_port, openstack_networking_port_v2.ingress_port]
 }
 
 resource "openstack_networking_port_v2" "api_port" {
@@ -83,6 +83,20 @@ resource "openstack_networking_port_v2" "api_port" {
   fixed_ip {
     subnet_id  = local.nodes_subnet_id
     ip_address = var.api_int_ip
+  }
+}
+
+resource "openstack_networking_port_v2" "dns_port" {
+  name = "${var.cluster_id}-dns-port"
+
+  admin_state_up     = "true"
+  network_id         = local.nodes_network_id
+  security_group_ids = [openstack_networking_secgroup_v2.master.id]
+  tags               = ["openshiftClusterID=${var.cluster_id}"]
+
+  fixed_ip {
+    subnet_id  = local.nodes_subnet_id
+    ip_address = var.node_dns_ip
   }
 }
 
